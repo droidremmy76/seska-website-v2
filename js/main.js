@@ -731,6 +731,171 @@
     });
   });
 
+  
+  /* ==========================================================================
+     FLAGSHIP $1M SUITE: WEB AUDIO, CMYK INSPECTOR, PROOF SLIDER, ESTIMATOR
+     ========================================================================== */
+
+  // 1. Web Audio API Tactile Synthesizer
+  var audioCtx = null, sfxEnabled = false;
+  function initAudio() {
+    if (!audioCtx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function playTone(freq, type, duration, gainVal) {
+    if (!sfxEnabled || !audioCtx) return;
+    try {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(gainVal || 0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+  }
+
+  function sfxClick() {
+    playTone(820, 'sine', 0.06, 0.08);
+  }
+  function sfxHover() {
+    playTone(1400, 'triangle', 0.03, 0.03);
+  }
+  function sfxSwitch() {
+    playTone(440, 'sine', 0.08, 0.1);
+    setTimeout(function() { playTone(880, 'sine', 0.08, 0.08); }, 50);
+  }
+
+  var audioToggle = $('#audio-toggle');
+  var audioStatus = $('#audio-status');
+  if (audioToggle) {
+    audioToggle.addEventListener('click', function() {
+      initAudio();
+      sfxEnabled = !sfxEnabled;
+      audioToggle.classList.toggle('is-active', sfxEnabled);
+      if (audioStatus) audioStatus.textContent = sfxEnabled ? 'ON' : 'OFF';
+      if (sfxEnabled) sfxSwitch();
+    });
+  }
+
+  // Attach hover sounds to buttons and key links
+  $$('.btn, .pill-links a, .cmyk-btn, .comet, .dm-item').forEach(function(el) {
+    el.addEventListener('mouseenter', sfxHover);
+    el.addEventListener('click', sfxClick);
+  });
+
+  // 2. CMYK Press Inspector Console
+  var cmykButtons = $$('.cmyk-btn');
+  var heroMedia = $('.hx-media');
+  if (cmykButtons.length && heroMedia) {
+    cmykButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var mode = btn.getAttribute('data-cmyk');
+        cmykButtons.forEach(function(b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        heroMedia.classList.remove('sep-cyan', 'sep-magenta', 'sep-yellow', 'sep-black');
+        if (mode !== 'all') {
+          heroMedia.classList.add('sep-' + mode);
+        }
+        sfxClick();
+      });
+    });
+  }
+
+  // 3. Proof-to-Print Comparison Slider
+  var proofSlider = $('#proof-slider');
+  var proofAfter = $('#proof-after');
+  var proofHandle = $('#proof-handle');
+  if (proofSlider && proofAfter && proofHandle) {
+    var isDragging = false;
+
+    function updateSlider(xPos) {
+      var rect = proofSlider.getBoundingClientRect();
+      var x = Math.max(0, Math.min(xPos - rect.left, rect.width));
+      var pct = (x / rect.width) * 100;
+      proofAfter.style.width = pct + '%';
+      proofHandle.style.left = pct + '%';
+      proofHandle.setAttribute('aria-valuenow', Math.round(pct));
+    }
+
+    proofSlider.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      updateSlider(e.clientX);
+      sfxClick();
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (isDragging) updateSlider(e.clientX);
+    });
+    window.addEventListener('mouseup', function() {
+      if (isDragging) isDragging = false;
+    });
+
+    // Touch support
+    proofSlider.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      if (e.touches[0]) updateSlider(e.touches[0].clientX);
+    }, { passive: true });
+    window.addEventListener('touchmove', function(e) {
+      if (isDragging && e.touches[0]) updateSlider(e.touches[0].clientX);
+    }, { passive: true });
+    window.addEventListener('touchend', function() {
+      if (isDragging) isDragging = false;
+    });
+  }
+
+  // 4. Instant WhatsApp Job Estimator
+  var calcCategory = $('#calc-category');
+  var calcQty = $('#calc-qty');
+  var calcQtyDisp = $('#calc-qty-disp');
+  var calcPriceDisp = $('#calc-price-disp');
+  var calcWaBtn = $('#calc-whatsapp-btn');
+
+  function updateEstimate() {
+    if (!calcCategory || !calcQty || !calcPriceDisp || !calcWaBtn) return;
+    var opt = calcCategory.options[calcCategory.selectedIndex];
+    var unitRate = parseFloat(opt.getAttribute('data-unit')) || 1000;
+    var minQty = parseInt(opt.getAttribute('data-min')) || 1;
+    var prodName = opt.getAttribute('data-name') || opt.text;
+    var qty = parseInt(calcQty.value) || 100;
+
+    if (calcQtyDisp) calcQtyDisp.textContent = qty.toLocaleString() + ' units';
+
+    // Volume discount curve
+    var discount = 1.0;
+    if (qty >= 1000) discount = 0.82;
+    else if (qty >= 500) discount = 0.88;
+    else if (qty >= 250) discount = 0.94;
+
+    var low = Math.round(qty * unitRate * discount * 0.95 / 1000) * 1000;
+    var high = Math.round(qty * unitRate * discount * 1.05 / 1000) * 1000;
+
+    var lowStr = 'UGX ' + low.toLocaleString();
+    var highStr = high.toLocaleString();
+    calcPriceDisp.textContent = lowStr + ' – ' + highStr;
+
+    var msg = 'Hello Seska Investments Ltd,\n\nI would like to order / lock in a spec:\n' +
+              '• Product: ' + prodName + '\n' +
+              '• Quantity: ' + qty.toLocaleString() + ' units\n' +
+              '• Estimated Range: ' + lowStr + ' - ' + highStr + '\n\n' +
+              'Please confirm turnaround time and artwork requirements.';
+    calcWaBtn.href = 'https://wa.me/256768584819?text=' + encodeURIComponent(msg);
+  }
+
+  if (calcCategory && calcQty) {
+    calcCategory.addEventListener('change', function() { updateEstimate(); sfxClick(); });
+    calcQty.addEventListener('input', updateEstimate);
+    updateEstimate();
+  }
+
   /* ---------- Keep ScrollTrigger honest after fonts and images ---------- */
   ST.sort && ST.sort();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ST.refresh(); });
