@@ -21,6 +21,11 @@
     del: function (k) { try { sessionStorage.removeItem(k); } catch (e) {} }
   };
 
+  var audioCtx = null, sfxEnabled = false;
+  try {
+    if (sessionStorage.getItem('seska-sfx') === '1') sfxEnabled = true;
+  } catch (e) {}
+
   $$('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
   if (!HAS_GSAP) { root.classList.remove('js'); root.classList.add('no-js'); return; }
@@ -737,7 +742,6 @@
      ========================================================================== */
 
   // 1. Web Audio API Tactile Synthesizer
-  var audioCtx = null, sfxEnabled = false;
   function initAudio() {
     if (!audioCtx) {
       var AC = window.AudioContext || window.webkitAudioContext;
@@ -778,17 +782,22 @@
   var audioToggle = $('#audio-toggle');
   var audioStatus = $('#audio-status');
   if (audioToggle) {
+    if (sfxEnabled) {
+      audioToggle.classList.add('is-active');
+      if (audioStatus) audioStatus.textContent = 'ON';
+    }
     audioToggle.addEventListener('click', function() {
       initAudio();
       sfxEnabled = !sfxEnabled;
+      try { sessionStorage.setItem('seska-sfx', sfxEnabled ? '1' : '0'); } catch(e) {}
       audioToggle.classList.toggle('is-active', sfxEnabled);
       if (audioStatus) audioStatus.textContent = sfxEnabled ? 'ON' : 'OFF';
       if (sfxEnabled) sfxSwitch();
     });
   }
 
-  // Attach hover sounds to buttons and key links
-  $$('.btn, .pill-links a, .cmyk-btn, .comet, .dm-item').forEach(function(el) {
+  // Attach tactile sound feedback to interactive elements across all pages
+  $$('.btn, .pill-links a, .cmyk-btn, .comet, .dm-item, .pcard, .c-card, .chip, .q-tile, .wa-float, .menu-btn').forEach(function(el) {
     el.addEventListener('mouseenter', sfxHover);
     el.addEventListener('click', sfxClick);
   });
