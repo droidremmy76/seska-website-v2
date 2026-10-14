@@ -896,6 +896,130 @@
     updateEstimate();
   }
 
+  // 5. Ambient Ink-Particle Canvas (hero background)
+  (function() {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'ambient-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    var hero = document.querySelector('.hero');
+    if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    hero.insertBefore(canvas, hero.firstChild);
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var PARTICLE_COUNT = 40;
+    var COLORS = ['rgba(0,174,239,', 'rgba(236,0,140,', 'rgba(255,242,0,', 'rgba(255,255,255,'];
+
+    function resize() {
+      canvas.width = hero.offsetWidth;
+      canvas.height = hero.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function Particle() {
+      this.reset();
+    }
+    Particle.prototype.reset = function() {
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height + Math.random() * 60;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = -(0.2 + Math.random() * 0.6);
+      this.r = 1 + Math.random() * 2.5;
+      this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      this.alpha = 0.15 + Math.random() * 0.25;
+      this.life = 0;
+      this.maxLife = 200 + Math.random() * 300;
+    };
+    Particle.prototype.update = function() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life++;
+      if (this.life > this.maxLife || this.y < -10) this.reset();
+    };
+    Particle.prototype.draw = function() {
+      var fade = 1 - (this.life / this.maxLife);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.color + (this.alpha * fade) + ')';
+      ctx.fill();
+    };
+
+    for (var i = 0; i < PARTICLE_COUNT; i++) {
+      var p = new Particle();
+      p.y = Math.random() * canvas.height;
+      p.life = Math.random() * p.maxLife;
+      particles.push(p);
+    }
+
+    var raf;
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+      raf = requestAnimationFrame(animate);
+    }
+
+    // Only animate when hero is visible
+    var heroObs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        if (!raf) animate();
+      } else {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+    }, { threshold: 0.1 });
+    heroObs.observe(hero);
+  })();
+
+  // 6. Lazy-load ambient production videos on scroll
+  (function() {
+    var videoSections = [
+      { selector: '.proof-section', src: 'video/seska-embroidery.mp4', pos: 'center' },
+      { selector: '.section-paper', src: 'video/seska-signage.mp4', pos: 'center bottom' }
+    ];
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    videoSections.forEach(function(cfg) {
+      var section = document.querySelector(cfg.selector);
+      if (!section) return;
+      var obs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          obs.disconnect();
+          var vid = document.createElement('video');
+          vid.className = 'section-bg-video';
+          vid.muted = true;
+          vid.loop = true;
+          vid.playsInline = true;
+          vid.setAttribute('aria-hidden', 'true');
+          vid.style.objectPosition = cfg.pos;
+          var source = document.createElement('source');
+          source.src = cfg.src;
+          source.type = 'video/mp4';
+          vid.appendChild(source);
+          section.insertBefore(vid, section.firstChild);
+          vid.play().catch(function() {});
+        }
+      }, { threshold: 0.15 });
+      obs.observe(section);
+    });
+  })();
+
+  // 7. Cinematic section entrance on scroll
+  (function() {
+    var targets = document.querySelectorAll('.proof-section .container, .calc-section .calc-grid');
+    if (!targets.length) return;
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    targets.forEach(function(el) { obs.observe(el); });
+  })();
+
   /* ---------- Keep ScrollTrigger honest after fonts and images ---------- */
   ST.sort && ST.sort();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ST.refresh(); });
