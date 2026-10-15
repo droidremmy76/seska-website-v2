@@ -14,7 +14,7 @@
   var FINE = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var MOBILE = window.matchMedia('(max-width: 820px)').matches;
   var HAS_GSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
-  var WHATSAPP = '256768584819';
+  var WHATSAPP = '256200926763';
   var store = {
     get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
@@ -384,15 +384,13 @@
      ====================================================================== */
   var hero = $('#hero');
   if (hero) {
-    // Photo sequence until production video is supplied
-    var slides = $$('.hx-slides img', hero), si = 0, slideTimer = null;
-    if (slides.length > 1 && !REDUCED) slideTimer = setInterval(function () { slides[si].classList.remove('is-on'); si = (si + 1) % slides.length; slides[si].classList.add('is-on'); }, 3200);
-    var vid = $('video', hero);
-    if (vid) {
-      vid.addEventListener('canplay', function () { vid.classList.add('is-ready'); if (!REDUCED) vid.play().catch(function () {}); if (slideTimer) clearInterval(slideTimer); }, { once: true });
-      vid.addEventListener('error', function () { vid.remove(); }, true);
-      var src = $('source', vid); if (src) src.addEventListener('error', function () { vid.remove(); });
-    }
+    // Rotate real Seska photography without video playback.
+    var slides = $$('.hx-slides img', hero), si = 0;
+    if (slides.length > 1 && !REDUCED) setInterval(function () {
+      slides[si].classList.remove('is-on');
+      si = (si + 1) % slides.length;
+      slides[si].classList.add('is-on');
+    }, 4200);
 
     // Place the mask's zoom origin inside the "I" of PRINT so the video becomes the doorway
     var maskWord = $('.hx-mask span', hero);
@@ -896,7 +894,7 @@
               '• Quantity: ' + qty.toLocaleString() + ' units\n' +
               '• Estimated Range: ' + lowStr + ' - ' + highStr + '\n\n' +
               'Please confirm turnaround time and artwork requirements.';
-    calcWaBtn.href = 'https://wa.me/256768584819?text=' + encodeURIComponent(msg);
+    calcWaBtn.href = 'https://wa.me/256200926763?text=' + encodeURIComponent(msg);
   }
 
   if (calcCategory && calcQty) {
@@ -982,37 +980,7 @@
     heroObs.observe(hero);
   })();
 
-  // 6. Lazy-load ambient production videos on scroll
-  (function() {
-    var videoSections = [
-      { selector: '.proof-section', src: 'video/seska-embroidery.mp4', pos: 'center' },
-      { selector: '.section-paper', src: 'video/seska-signage.mp4', pos: 'center bottom' }
-    ];
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    videoSections.forEach(function(cfg) {
-      var section = document.querySelector(cfg.selector);
-      if (!section) return;
-      var obs = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) {
-          obs.disconnect();
-          var vid = document.createElement('video');
-          vid.className = 'section-bg-video';
-          vid.muted = true;
-          vid.loop = true;
-          vid.playsInline = true;
-          vid.setAttribute('aria-hidden', 'true');
-          vid.style.objectPosition = cfg.pos;
-          var source = document.createElement('source');
-          source.src = cfg.src;
-          source.type = 'video/mp4';
-          vid.appendChild(source);
-          section.insertBefore(vid, section.firstChild);
-          vid.play().catch(function() {});
-        }
-      }, { threshold: 0.15 });
-      obs.observe(section);
-    });
-  })();
+  // Ambient videos removed; photography drives the site.
 
   // 7. Cinematic section entrance on scroll
   (function() {
