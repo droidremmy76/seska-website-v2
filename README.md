@@ -14,7 +14,7 @@ Plain HTML, CSS and JavaScript. No framework and no build step: upload the folde
 |---|---|
 | First visit | Loader: CMYK layers register → logo → sheet leaves the press (once per session) |
 | Every page | Floating pill nav · full-screen **printed-sheet menu** with crop and registration marks · **sheet-feed** page transitions |
-| Home hero | Media card expands to full bleed → DIGITAL / PRINTING / AT ITS BEST separate → video seen **through the letters of PRINT** → doorway |
+| Home hero | Real production photographs cycle as the media card expands to full bleed → DIGITAL / PRINTING / AT ITS BEST separate → imagery seen **through the letters of PRINT** → doorway |
 | Headlines | Masked line reveals · **vertical cut reveal** (letters lock like registration plates) |
 | Technical text | Scramble / decode (`data-scramble`) |
 | Numbers | Mechanical odometer (`data-odo`) |
@@ -32,11 +32,11 @@ Plain HTML, CSS and JavaScript. No framework and no build step: upload the folde
 | Quote page | Deliberately calm 6-step form that morphs between steps · premium artwork upload |
 
 ## Swap in real content
-- **Production film:** save it as `video/seska-production.mp4` (short, muted, 1080p or smaller). The hero switches to it automatically; until then it cycles through photos.
-- **Photos:** replace the files in `images/`, keeping the same names. The current ones were cropped from the mockups and are low resolution.
-- **Proof → Print slider** (portfolio): replace the two images with a real artwork proof and a photo of the printed result.
+- **Production photography:** the homepage uses real Seska workshop images in a timed hero slideshow; no website video elements remain.
+- **Photos:** authentic Seska printing, signage, roll-up banners, branded apparel, café print and lanyard examples are in `images/`.
+- **Portfolio slider:** showcases two *different* real Seska projects. It is not presented as a before-and-after of the same project.
 - **Social links:** in the footer, currently `#`.
 
 ## Quote requests
-The form checks each step, then opens WhatsApp (+256 768 584819) with the full request filled in.
+The form checks each step, then opens WhatsApp (+256 200 926763) with the full request filled in.
 To also receive requests by email, add a Formspree (or similar) endpoint: `<form id="quote" data-endpoint="https://formspree.io/f/XXXX" …>`
