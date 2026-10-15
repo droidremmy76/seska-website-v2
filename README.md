@@ -27,7 +27,7 @@ Plain HTML, CSS and JavaScript. No framework and no build step: upload the folde
 | Process | Text along a registration line · tracing beam |
 | Motto | *Customer satisfaction is our pride.* arrives slowly and holds |
 | Contact | Faint technical grid · delivery routes drawn out of Kampala |
-| Cursor | Crop-mark ⌜+⌟ with VIEW / PLAY / EXPLORE / OPEN, only over media (`data-cursor="…"`) |
+| Cursor | Crop-mark ⌜+⌟ with VIEW / EXPLORE / OPEN, only over media (`data-cursor="…"`) |
 | Buttons | CMYK registration lines · magnetic pull |
 | Quote page | Deliberately calm 6-step form that morphs between steps · premium artwork upload |
 

@@ -392,7 +392,7 @@
       slides[si].classList.add('is-on');
     }, 4200);
 
-    // Place the mask's zoom origin inside the "I" of PRINT so the video becomes the doorway
+    // Place the mask zoom origin inside the "I" of PRINT to reveal the photo sequence
     var maskWord = $('.hx-mask span', hero);
     if (maskWord) maskWord.innerHTML = 'PR<i style="font-style:normal">I</i>NT';
 
